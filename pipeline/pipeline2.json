@@ -1,10 +1,10 @@
 {
-	"name": "pipeline1",
+	"name": "pipeline2",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy Data1",
-				"type": "Copy",
+				"name": "Lookup-Todo",
+				"type": "Lookup",
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -15,25 +15,13 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlSource",
-						"sqlReaderQuery": {
-							"value": "@concat('select * from [saleslt].[',pipeline().parameters.EntityName,']')",
-							"type": "Expression"
-						}
+						"sqlReaderQuery": "select t.name as EntityName from sys.tables t inner join sys.schemas s on s.schema_id=t.schema_id\nwhere s.name = 'saleslt'"
 					},
-					"sink": {
-						"type": "AzureBlobFSSink"
-					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
+					"dataset": {
 						"referenceName": "ds_SQL_datahub",
 						"type": "DatasetReference",
 						"parameters": {
-							"EntityName": {
-								"value": "@pipeline().parameters.EntityName",
-								"type": "Expression"
-							},
+							"EntityName": "sys.tables",
 							"EntityStructure": [
 								{
 									"physicalName": "AddressID",
@@ -127,20 +115,45 @@
 								}
 							]
 						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup-Todo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
-				"outputs": [
-					{
-						"referenceName": "ds_DLS_DataLake",
-						"type": "DatasetReference"
-					}
-				]
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup-Todo').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pipeline1",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"EntityName": "@item().EntityName"
+								}
+							}
+						}
+					]
+				}
 			}
-		],
-		"parameters": {
-			"EntityName": {
-				"type": "String"
-			}
-		}
+		]
 	}
 }
