@@ -1,0 +1,251 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "adf-we-mdai-schematize-dev-01"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/1-Control-Schematize')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup-Todo",
+						"type": "Lookup",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "SqlSource",
+								"sqlReaderQuery": "select t.name as EntityName from sys.tables t inner join sys.schemas s on s.schema_id=t.schema_id\nwhere s.name = 'datahub'"
+							},
+							"dataset": {
+								"referenceName": "ds_SQL_datahub",
+								"type": "DatasetReference",
+								"parameters": {
+									"EntityName": "sys.tables",
+									"EntityStructure": [
+										"Foo",
+										"Bar"
+									]
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup-Todo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup-Todo').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "2-Schematize",
+									"type": "ExecutePipeline",
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "2-Schematize",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {
+											"EntityName": {
+												"value": "@item().EntityName",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_SQL_datahub')]",
+				"[concat(variables('factoryId'), '/pipelines/2-Schematize')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/2-Schematize')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get-Table-Metadata",
+						"type": "GetMetadata",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_SQL_datahub",
+								"type": "DatasetReference",
+								"parameters": {
+									"EntityName": "@pipeline().parameters.EntityName",
+									"EntityStructure": [
+										{
+											"destination": {
+												"structure": [
+													{
+														"name": "Foo",
+														"type": "Bar"
+													}
+												]
+											}
+										}
+									]
+								}
+							},
+							"fieldList": [
+								"structure"
+							]
+						}
+					},
+					{
+						"name": "Stage-Data",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Get-Table-Metadata",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "AzureBlobFSSource",
+								"recursive": true
+							},
+							"sink": {
+								"type": "SqlSink",
+								"writeBatchSize": 10000,
+								"preCopyScript": {
+									"value": "@{concat('TRUNCATE TABLE [datahub].[',pipeline().parameters.EntityName,']')}",
+									"type": "Expression"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_DLS_datalake",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_SQL_datahub",
+								"type": "DatasetReference",
+								"parameters": {
+									"EntityName": "@pipeline().parameters.EntityName",
+									"EntityStructure": "@activity('Get-Table-Metadata').output.structure"
+								}
+							}
+						]
+					}
+				],
+				"parameters": {
+					"EntityName": {
+						"type": "String"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_SQL_datahub')]",
+				"[concat(variables('factoryId'), '/datasets/ds_DLS_datalake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_DLS_datalake')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_ADLS_source",
+					"type": "LinkedServiceReference"
+				},
+				"type": "AzureBlobFSFile",
+				"typeProperties": {
+					"format": {
+						"type": "ParquetFormat"
+					},
+					"fileName": {
+						"value": "@concat(pipeline().parameters.EntityName,'.parquet')",
+						"type": "Expression"
+					},
+					"folderPath": "10-raw"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_SQL_datahub')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_SQL_sink",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"EntityName": {
+						"type": "String"
+					},
+					"EntityStructure": {
+						"type": "Array"
+					}
+				},
+				"type": "AzureSqlTable",
+				"structure": {
+					"value": "@dataset().EntityStructure",
+					"type": "Expression"
+				},
+				"typeProperties": {
+					"tableName": {
+						"value": "@concat('[datahub].[',dataset().EntityName,']')",
+						"type": "Expression"
+					}
+				}
+			}
+		}
+	]
+}

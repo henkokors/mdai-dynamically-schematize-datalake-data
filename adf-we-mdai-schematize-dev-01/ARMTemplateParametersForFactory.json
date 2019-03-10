@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-we-mdai-schematize-dev-01"
+		},
+		"ls_ADLS_source_accountKey": {
+			"value": ""
+		},
+		"ls_SQL_sink_connectionString": {
+			"value": ""
+		},
+		"ds_DLS_datalake_properties_typeProperties_fileName": {
+			"value": "@concat(pipeline().parameters.EntityName,'.parquet')"
+		},
+		"ds_DLS_datalake_properties_typeProperties_folderPath": {
+			"value": "10-raw"
+		},
+		"ls_ADLS_source_properties_typeProperties_url": {
+			"value": "https://stawemdaischematizedev01.dfs.core.windows.net"
+		}
+	}
+}
