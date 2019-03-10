@@ -21,7 +21,11 @@
 						"referenceName": "ds_SQL_datahub",
 						"type": "DatasetReference",
 						"parameters": {
-							"EntityName": "sys.tables"
+							"EntityName": "sys.tables",
+							"EntityStructure": [
+								"Foo",
+								"Bar"
+							]
 						}
 					},
 					"firstRowOnly": false
@@ -39,6 +43,11 @@
 					}
 				],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup-Todo').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "2-Schematize",
@@ -48,6 +57,7 @@
 									"referenceName": "2-Schematize",
 									"type": "PipelineReference"
 								},
+								"waitOnCompletion": false,
 								"parameters": {
 									"EntityName": "@item().EntityName"
 								}

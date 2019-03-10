@@ -1,5 +1,5 @@
 {
-	"name": "ds_DLS_DataLake",
+	"name": "ds_DLS_datalake",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_ADLS_source",
