@@ -1,0 +1,23 @@
+{
+	"name": "ds_DLS_DataLake",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ADLS_source",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureBlobFSFile",
+		"typeProperties": {
+			"format": {
+				"type": "ParquetFormat"
+			},
+			"fileName": {
+				"value": "@concat(pipeline().parameters.EntityName,'.parquet')",
+				"type": "Expression"
+			},
+			"folderPath": {
+				"value": "@concat('10-raw/',pipeline().parameters.EntityName)",
+				"type": "Expression"
+			}
+		}
+	}
+}
