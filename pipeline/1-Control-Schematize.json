@@ -26,6 +26,35 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "ForEach",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup-Todo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "2-Schematize",
+							"type": "ExecutePipeline",
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "2-Schematize",
+									"type": "PipelineReference"
+								},
+								"parameters": {
+									"EntityName": "@item().EntityName"
+								}
+							}
+						}
+					]
+				}
 			}
 		]
 	}
