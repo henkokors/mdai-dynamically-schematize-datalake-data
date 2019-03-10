@@ -1,0 +1,55 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Data1",
+				"type": "Copy",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "SqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('select * from [saleslt].[',pipeline().parameters.EntiyName,']')",
+							"type": "Expression"
+						}
+					},
+					"sink": {
+						"type": "AzureBlobFSSink"
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_SQL_datahub",
+						"type": "DatasetReference",
+						"parameters": {
+							"EntityName": {
+								"value": "@pipeline().parameters.EntiyName",
+								"type": "Expression"
+							},
+							"EntityStructure": "fooBar"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_DLS_DataLake",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"EntiyName": {
+				"type": "String"
+			}
+		}
+	}
+}

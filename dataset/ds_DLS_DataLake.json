@@ -14,10 +14,7 @@
 				"value": "@concat(pipeline().parameters.EntityName,'.parquet')",
 				"type": "Expression"
 			},
-			"folderPath": {
-				"value": "@concat('10-raw/',pipeline().parameters.EntityName)",
-				"type": "Expression"
-			}
+			"folderPath": "10-raw"
 		}
 	}
 }
