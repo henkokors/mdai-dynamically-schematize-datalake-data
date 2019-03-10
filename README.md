@@ -1,2 +1,5 @@
 # mdai-dynamically-schematize-datalake-data
-todo
+0. Clone the code into your local repo
+1. Place the files under 'datalake-10-raw' in your own datalake
+2. Update the linked services to your own source/destination
+3. .. Get going! :)
