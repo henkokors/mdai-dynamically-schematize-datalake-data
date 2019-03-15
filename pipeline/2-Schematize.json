@@ -17,19 +17,7 @@
 						"referenceName": "ds_SQL_datahub",
 						"type": "DatasetReference",
 						"parameters": {
-							"EntityName": "@pipeline().parameters.EntityName",
-							"EntityStructure": [
-								{
-									"destination": {
-										"structure": [
-											{
-												"name": "Foo",
-												"type": "Bar"
-											}
-										]
-									}
-								}
-							]
+							"EntityName": "@pipeline().parameters.EntityName"
 						}
 					},
 					"fieldList": [
@@ -64,7 +52,7 @@
 						"type": "SqlSink",
 						"writeBatchSize": 10000,
 						"preCopyScript": {
-							"value": "@{concat('TRUNCATE TABLE [datahub].[',pipeline().parameters.EntityName,']')}",
+							"value": "TRUNCATE TABLE [datahub].[@{pipeline().parameters.EntityName}]",
 							"type": "Expression"
 						}
 					},
@@ -72,8 +60,11 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ds_DLS_DataLake",
-						"type": "DatasetReference"
+						"referenceName": "ds_DLS_datalake",
+						"type": "DatasetReference",
+						"parameters": {
+							"EntityName": "@pipeline().parameters.EntityName"
+						}
 					}
 				],
 				"outputs": [
@@ -90,7 +81,8 @@
 		],
 		"parameters": {
 			"EntityName": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "Address"
 			}
 		}
 	}

@@ -15,18 +15,11 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlSource",
-						"sqlReaderQuery": "select t.name as EntityName from sys.tables t inner join sys.schemas s on s.schema_id=t.schema_id\nwhere s.name = 'datahub'"
+						"sqlReaderQuery": "select t.name as EntityName \nfrom sys.tables t \ninner join sys.schemas s on s.schema_id=t.schema_id\nwhere s.name = 'datahub'"
 					},
 					"dataset": {
 						"referenceName": "ds_SQL_datahub",
-						"type": "DatasetReference",
-						"parameters": {
-							"EntityName": "sys.tables",
-							"EntityStructure": [
-								"Foo",
-								"Bar"
-							]
-						}
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
@@ -59,7 +52,10 @@
 								},
 								"waitOnCompletion": false,
 								"parameters": {
-									"EntityName": "@item().EntityName"
+									"EntityName": {
+										"value": "@item().EntityName",
+										"type": "Expression"
+									}
 								}
 							}
 						}

@@ -5,16 +5,22 @@
 			"referenceName": "ls_ADLS_source",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"EntityName": {
+				"type": "String",
+				"defaultValue": "Address"
+			}
+		},
 		"type": "AzureBlobFSFile",
-		"typeProperties": {
-			"format": {
-				"type": "ParquetFormat"
-			},
-			"fileName": {
-				"value": "@concat(pipeline().parameters.EntityName,'.parquet')",
-				"type": "Expression"
-			},
-			"folderPath": "10-raw"
-		}
+    "typeProperties": {
+      "format": {
+        "type": "ParquetFormat"
+      },
+      "fileName": {
+        "value": "@{dataset().EntityName}.parquet",
+        "type": "Expression"
+      },
+      "folderPath": "10-raw"
+    }
 	}
 }
