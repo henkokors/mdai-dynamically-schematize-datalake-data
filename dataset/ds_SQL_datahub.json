@@ -1,33 +1,36 @@
 {
 	"name": "ds_SQL_datahub",
-	"properties": {
-		"linkedServiceName": {
-			"referenceName": "ls_SQL_sink",
-			"type": "LinkedServiceReference"
-		},
-		"parameters": {
-			"EntityName": {
-				"type": "String",
-				"defaultValue": "Address"
-			},
-			"EntityStructure": {
-				"type": "Array",
-				"defaultValue": [
-					"Foo",
-					"Bar"
-				]
-			}
-		},
-		"type": "AzureSqlTable",
-		"structure": {
-			"value": "@dataset().EntityStructure",
-			"type": "Expression"
-		},
-		"typeProperties": {
-			"tableName": {
-				"value": "@concat('[datahub].[',dataset().EntityName,']')",
-				"type": "Expression"
-			}
-		}
-	}
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_SQL_sink",
+      "type": "LinkedServiceReference"
+    },
+    "parameters": {
+      "EntityName": {
+        "type": "String",
+        "defaultValue": "Address"
+      },
+      "EntityStructure": {
+        "type": "Array",
+        "defaultValue": [
+          "Foo",
+          "Bar"
+        ]
+      }
+    },
+    "folder": {
+      "name": "mdai"
+    },
+    "type": "AzureSqlTable",
+    "structure": {
+      "value": "@dataset().EntityStructure",
+      "type": "Expression"
+    },
+    "typeProperties": {
+      "tableName": {
+        "value": "@concat('[datahub].[',dataset().EntityName,']')",
+        "type": "Expression"
+      }
+    }
+  }
 }

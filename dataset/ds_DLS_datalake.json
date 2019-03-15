@@ -1,17 +1,20 @@
 {
 	"name": "ds_DLS_datalake",
-	"properties": {
-		"linkedServiceName": {
-			"referenceName": "ls_ADLS_source",
-			"type": "LinkedServiceReference"
-		},
-		"parameters": {
-			"EntityName": {
-				"type": "String",
-				"defaultValue": "Address"
-			}
-		},
-		"type": "AzureBlobFSFile",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_ADLS_source",
+      "type": "LinkedServiceReference"
+    },
+    "parameters": {
+      "EntityName": {
+        "type": "String",
+        "defaultValue": "Address"
+      }
+    },
+    "folder": {
+      "name": "mdai"
+    },
+    "type": "AzureBlobFSFile",
     "typeProperties": {
       "format": {
         "type": "ParquetFormat"
@@ -22,5 +25,5 @@
       },
       "folderPath": "10-raw"
     }
-	}
+  }
 }
