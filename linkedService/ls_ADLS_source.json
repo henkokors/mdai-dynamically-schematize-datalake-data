@@ -3,8 +3,8 @@
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"type": "AzureBlobFS",
-    "typeProperties": {
-      "url": "https://stawemdaischematizedev01.dfs.core.windows.net"
-    }
+		"typeProperties": {
+			"url": "https://stawemdaischematizedev01.dfs.core.windows.net"
+		}
 	}
 }
