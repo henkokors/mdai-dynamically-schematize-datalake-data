@@ -1,3 +1,4 @@
+[![Board Status](https://dev.azure.com/modusnl/8f1f3dd8-c367-4097-8039-fb46e028faa7/e14883a0-6b98-41d8-ad47-5a613497c5af/_apis/work/boardbadge/69788334-cb2a-4df5-a41f-bef404445cfe)](https://dev.azure.com/modusnl/8f1f3dd8-c367-4097-8039-fb46e028faa7/_boards/board/t/e14883a0-6b98-41d8-ad47-5a613497c5af/Microsoft.RequirementCategory)
 # mdai-dynamically-schematize-datalake-data
 0. Clone the code into your local repo for your own Azure Data Factory
 1. Place the files under 'datalake-10-raw' in your own datalake
