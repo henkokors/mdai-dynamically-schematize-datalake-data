@@ -7,11 +7,19 @@
 		},
 		"parameters": {
 			"EntityName": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "Address"
 			},
 			"EntityStructure": {
-				"type": "Array"
+				"type": "Array",
+				"defaultValue": [
+					"Foo",
+					"Bar"
+				]
 			}
+		},
+		"folder": {
+			"name": "mdai"
 		},
 		"type": "AzureSqlTable",
 		"structure": {
